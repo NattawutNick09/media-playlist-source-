@@ -205,8 +205,14 @@ static void clear_media_source(void *data)
 static void update_media_source(void *data, bool forced)
 {
 	struct media_playlist_source *mps = data;
-	obs_source_t *media_source = mps->current_media_source;
-	obs_data_t *settings = obs_source_get_settings(media_source);
+	
+	/* 1. หาว่าเครื่องเล่นตัวไหนว่างอยู่ (ตัวที่ไม่ได้ฉายอยู่หลังบ้าน) 
+	   ถ้าตัวฉายปัจจุบัน (active_idx) เป็น 0 ตัวหลังบ้านจะเป็น 1 / ถ้าเป็น 1 หลังบ้านจะเป็น 0 */
+	int next_idx = (mps->active_idx == 0) ? 1 : 0;
+	obs_source_t *next_media_source = mps->media_sources[next_idx];
+	
+	obs_data_t *settings = obs_source_get_settings(next_media_source);
+
 	if (mps->current_media->is_folder) {
 		assert(mps->current_folder_item_index < mps->current_media->folder_items.num);
 		mps->actual_media = &mps->current_media->folder_items.array[mps->current_folder_item_index];
@@ -215,32 +221,31 @@ static void update_media_source(void *data, bool forced)
 		mps->actual_media = mps->current_media;
 	}
 
-	// if path is same, we have to force restart it, otherwise it doesn't restart
 	bool old_is_url = !obs_data_get_bool(settings, S_FFMPEG_IS_LOCAL_FILE);
 	const char *old_path_setting = old_is_url ? S_FFMPEG_INPUT : S_FFMPEG_LOCAL_FILE;
 	const char *old_path = obs_data_get_string(settings, old_path_setting);
 	bool should_restart = strcmp(old_path, mps->actual_media->path) == 0;
 
-	//bool current_is_url =
-	//	!obs_data_get_bool(settings, S_FFMPEG_IS_LOCAL_FILE);
 	const char *path_setting = mps->actual_media->is_url ? S_FFMPEG_INPUT : S_FFMPEG_LOCAL_FILE;
 
-	/*forced = forced || current_is_url != mps->current_media->is_url;
-	if (!forced) {
-		const char *path = obs_data_get_string(settings, path_setting);
-		forced = strcmp(path, mps->current_media->path) != 0;
-	}*/
-
 	if (forced) {
+		/* 2. สั่งโหลดไฟล์วิดีโอถัดไปเข้าไปรันล่วงหน้าที่เครื่องเล่นหลังบ้าน (next_media_source) */
 		obs_data_set_bool(settings, S_FFMPEG_IS_LOCAL_FILE, !mps->actual_media->is_url);
 		obs_data_set_string(settings, path_setting, mps->actual_media->path);
 		obs_data_set_int(settings, S_SPEED, mps->speed);
-		obs_source_update(media_source, settings);
+		
+		/* อัปเดตข้อมูลไฟล์เข้าตัวแฝดหลังบ้าน */
+		obs_source_update(next_media_source, settings);
 		mps->user_stopped = false;
 
 		if (should_restart) {
-			obs_source_media_restart(media_source);
+			obs_source_media_restart(next_media_source);
 		}
+		
+		/* 3. เปิด Flag สัญญาณบอกว่าระบบกำลังเตรียมพร้อมจะสลับฉาก (Transition) 
+		   (เราจะนำตัวแปรนี้ไปสั่ง Fade สวนกันในฟังก์ชันเรนเดอร์ภาพต่อไปครับ) */
+		mps->is_transitioning = true;
+		mps->transition_blend = 0.0f; /* เริ่มต้นความจางของวิดีโอใหม่ที่ 0% */
 	}
 
 	obs_data_release(settings);

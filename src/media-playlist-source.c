@@ -393,7 +393,7 @@ static void media_source_ended(void *data, calldata_t *cd)
 		mps->active_idx = (mps->active_idx == 0) ? 1 : 0;
 		
 		/* สั่งเลื่อนไปเล่นไฟล์ถัดไปบน Source ตัวใหม่ */
-		obs_source_media_next(mps->source);
+		update_media_source(mps, true);
 	} else {
 		mps_end_reached(mps);
 	}

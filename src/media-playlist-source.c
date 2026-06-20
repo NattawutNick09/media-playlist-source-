@@ -881,34 +881,722 @@ static bool mps_audio_render(void *data, uint64_t *ts_out, struct obs_source_aud
 			     size_t channels, size_t sample_rate)
 {
 	struct media_playlist_source *mps = data;
-	if (!mps->current_media_source)
-		return false;
+	
+	/* 1. ดึง Source ของวิดีโอหลักที่กำลังฉายอยู่ปัจจุบัน */
+	obs_source_t *active_source = mps->media_sources[mps->active_idx];
+	if (!active_source) return false;
 
 	struct obs_source_audio_mix child_audio;
 	uint64_t source_ts;
 
-	/*if (obs_source_audio_pending(mps->current_media_source))
-		return false;*/
+	/* 2. ดึงสัญญาณเวลาจาก Source ปัจจุบัน */
+	source_ts = obs_source_get_audio_timestamp(active_source);
+	if (!source_ts) return false;
 
-	source_ts = obs_source_get_audio_timestamp(mps->current_media_source);
-	if (!source_ts)
-		return false;
+	/* 3. ดึงสัญญาณมิกซ์เสียงจาก Source ปัจจุบัน */
+	obs_source_get_audio_mix(active_source, &child_audio);
 
-	obs_source_get_audio_mix(mps->current_media_source, &child_audio);
 	for (size_t mix = 0; mix < MAX_AUDIO_MIXES; mix++) {
-		if ((mixers & (1 << mix)) == 0)
-			continue;
+		if ((mixers & (1 << mix)) == 0) continue;
 
 		for (size_t ch = 0; ch < channels; ch++) {
 			float *out = audio_output->output[mix].data[ch];
 			float *in = child_audio.output[mix].data[ch];
-
 			memcpy(out, in, AUDIO_OUTPUT_FRAMES * MAX_AUDIO_CHANNELS * sizeof(float));
 		}
 	}
 
 	*ts_out = source_ts;
+	UNUSED_PARAMETER(sample_rate);
+	return true;
+}{
+	struct media_playlist_source *mps = data;
+	
+	/* 1. ดึง Source ของวิดีโอหลักที่กำลังฉายอยู่ปัจจุบัน */
+	obs_source_t *active_source = mps->media_sources[mps->active_idx];
+	if (!active_source) return false;
 
+	struct obs_source_audio_mix child_audio;
+	uint64_t source_ts;
+
+	/* 2. ดึงสัญญาณเวลาจาก Source ปัจจุบัน */
+	source_ts = obs_source_get_audio_timestamp(active_source);
+	if (!source_ts) return false;
+
+	/* 3. ดึงสัญญาณมิกซ์เสียงจาก Source ปัจจุบัน */
+	obs_source_get_audio_mix(active_source, &child_audio);
+
+	for (size_t mix = 0; mix < MAX_AUDIO_MIXES; mix++) {
+		if ((mixers & (1 << mix)) == 0) continue;
+
+		for (size_t ch = 0; ch < channels; ch++) {
+			float *out = audio_output->output[mix].data[ch];
+			float *in = child_audio.output[mix].data[ch];
+			memcpy(out, in, AUDIO_OUTPUT_FRAMES * MAX_AUDIO_CHANNELS * sizeof(float));
+		}
+	}
+
+	*ts_out = source_ts;
+	UNUSED_PARAMETER(sample_rate);
+	return true;
+}{
+	struct media_playlist_source *mps = data;
+	
+	/* 1. ดึง Source ของวิดีโอหลักที่กำลังฉายอยู่ปัจจุบัน */
+	obs_source_t *active_source = mps->media_sources[mps->active_idx];
+	if (!active_source) return false;
+
+	struct obs_source_audio_mix child_audio;
+	uint64_t source_ts;
+
+	/* 2. ดึงสัญญาณเวลาจาก Source ปัจจุบัน */
+	source_ts = obs_source_get_audio_timestamp(active_source);
+	if (!source_ts) return false;
+
+	/* 3. ดึงสัญญาณมิกซ์เสียงจาก Source ปัจจุบัน */
+	obs_source_get_audio_mix(active_source, &child_audio);
+
+	for (size_t mix = 0; mix < MAX_AUDIO_MIXES; mix++) {
+		if ((mixers & (1 << mix)) == 0) continue;
+
+		for (size_t ch = 0; ch < channels; ch++) {
+			float *out = audio_output->output[mix].data[ch];
+			float *in = child_audio.output[mix].data[ch];
+			memcpy(out, in, AUDIO_OUTPUT_FRAMES * MAX_AUDIO_CHANNELS * sizeof(float));
+		}
+	}
+
+	*ts_out = source_ts;
+	UNUSED_PARAMETER(sample_rate);
+	return true;
+}{
+	struct media_playlist_source *mps = data;
+	
+	/* 1. ดึง Source ของวิดีโอหลักที่กำลังฉายอยู่ปัจจุบัน */
+	obs_source_t *active_source = mps->media_sources[mps->active_idx];
+	if (!active_source) return false;
+
+	struct obs_source_audio_mix child_audio;
+	uint64_t source_ts;
+
+	/* 2. ดึงสัญญาณเวลาจาก Source ปัจจุบัน */
+	source_ts = obs_source_get_audio_timestamp(active_source);
+	if (!source_ts) return false;
+
+	/* 3. ดึงสัญญาณมิกซ์เสียงจาก Source ปัจจุบัน */
+	obs_source_get_audio_mix(active_source, &child_audio);
+
+	for (size_t mix = 0; mix < MAX_AUDIO_MIXES; mix++) {
+		if ((mixers & (1 << mix)) == 0) continue;
+
+		for (size_t ch = 0; ch < channels; ch++) {
+			float *out = audio_output->output[mix].data[ch];
+			float *in = child_audio.output[mix].data[ch];
+			memcpy(out, in, AUDIO_OUTPUT_FRAMES * MAX_AUDIO_CHANNELS * sizeof(float));
+		}
+	}
+
+	*ts_out = source_ts;
+	UNUSED_PARAMETER(sample_rate);
+	return true;
+}{
+	struct media_playlist_source *mps = data;
+	
+	/* 1. ดึง Source ของวิดีโอหลักที่กำลังฉายอยู่ปัจจุบัน */
+	obs_source_t *active_source = mps->media_sources[mps->active_idx];
+	if (!active_source) return false;
+
+	struct obs_source_audio_mix child_audio;
+	uint64_t source_ts;
+
+	/* 2. ดึงสัญญาณเวลาจาก Source ปัจจุบัน */
+	source_ts = obs_source_get_audio_timestamp(active_source);
+	if (!source_ts) return false;
+
+	/* 3. ดึงสัญญาณมิกซ์เสียงจาก Source ปัจจุบัน */
+	obs_source_get_audio_mix(active_source, &child_audio);
+
+	for (size_t mix = 0; mix < MAX_AUDIO_MIXES; mix++) {
+		if ((mixers & (1 << mix)) == 0) continue;
+
+		for (size_t ch = 0; ch < channels; ch++) {
+			float *out = audio_output->output[mix].data[ch];
+			float *in = child_audio.output[mix].data[ch];
+			memcpy(out, in, AUDIO_OUTPUT_FRAMES * MAX_AUDIO_CHANNELS * sizeof(float));
+		}
+	}
+
+	*ts_out = source_ts;
+	UNUSED_PARAMETER(sample_rate);
+	return true;
+}{
+	struct media_playlist_source *mps = data;
+	
+	/* 1. ดึง Source ของวิดีโอหลักที่กำลังฉายอยู่ปัจจุบัน */
+	obs_source_t *active_source = mps->media_sources[mps->active_idx];
+	if (!active_source) return false;
+
+	struct obs_source_audio_mix child_audio;
+	uint64_t source_ts;
+
+	/* 2. ดึงสัญญาณเวลาจาก Source ปัจจุบัน */
+	source_ts = obs_source_get_audio_timestamp(active_source);
+	if (!source_ts) return false;
+
+	/* 3. ดึงสัญญาณมิกซ์เสียงจาก Source ปัจจุบัน */
+	obs_source_get_audio_mix(active_source, &child_audio);
+
+	for (size_t mix = 0; mix < MAX_AUDIO_MIXES; mix++) {
+		if ((mixers & (1 << mix)) == 0) continue;
+
+		for (size_t ch = 0; ch < channels; ch++) {
+			float *out = audio_output->output[mix].data[ch];
+			float *in = child_audio.output[mix].data[ch];
+			memcpy(out, in, AUDIO_OUTPUT_FRAMES * MAX_AUDIO_CHANNELS * sizeof(float));
+		}
+	}
+
+	*ts_out = source_ts;
+	UNUSED_PARAMETER(sample_rate);
+	return true;
+}{
+	struct media_playlist_source *mps = data;
+	
+	/* 1. ดึง Source ของวิดีโอหลักที่กำลังฉายอยู่ปัจจุบัน */
+	obs_source_t *active_source = mps->media_sources[mps->active_idx];
+	if (!active_source) return false;
+
+	struct obs_source_audio_mix child_audio;
+	uint64_t source_ts;
+
+	/* 2. ดึงสัญญาณเวลาจาก Source ปัจจุบัน */
+	source_ts = obs_source_get_audio_timestamp(active_source);
+	if (!source_ts) return false;
+
+	/* 3. ดึงสัญญาณมิกซ์เสียงจาก Source ปัจจุบัน */
+	obs_source_get_audio_mix(active_source, &child_audio);
+
+	for (size_t mix = 0; mix < MAX_AUDIO_MIXES; mix++) {
+		if ((mixers & (1 << mix)) == 0) continue;
+
+		for (size_t ch = 0; ch < channels; ch++) {
+			float *out = audio_output->output[mix].data[ch];
+			float *in = child_audio.output[mix].data[ch];
+			memcpy(out, in, AUDIO_OUTPUT_FRAMES * MAX_AUDIO_CHANNELS * sizeof(float));
+		}
+	}
+
+	*ts_out = source_ts;
+	UNUSED_PARAMETER(sample_rate);
+	return true;
+}{
+	struct media_playlist_source *mps = data;
+	
+	/* 1. ดึง Source ของวิดีโอหลักที่กำลังฉายอยู่ปัจจุบัน */
+	obs_source_t *active_source = mps->media_sources[mps->active_idx];
+	if (!active_source) return false;
+
+	struct obs_source_audio_mix child_audio;
+	uint64_t source_ts;
+
+	/* 2. ดึงสัญญาณเวลาจาก Source ปัจจุบัน */
+	source_ts = obs_source_get_audio_timestamp(active_source);
+	if (!source_ts) return false;
+
+	/* 3. ดึงสัญญาณมิกซ์เสียงจาก Source ปัจจุบัน */
+	obs_source_get_audio_mix(active_source, &child_audio);
+
+	for (size_t mix = 0; mix < MAX_AUDIO_MIXES; mix++) {
+		if ((mixers & (1 << mix)) == 0) continue;
+
+		for (size_t ch = 0; ch < channels; ch++) {
+			float *out = audio_output->output[mix].data[ch];
+			float *in = child_audio.output[mix].data[ch];
+			memcpy(out, in, AUDIO_OUTPUT_FRAMES * MAX_AUDIO_CHANNELS * sizeof(float));
+		}
+	}
+
+	*ts_out = source_ts;
+	UNUSED_PARAMETER(sample_rate);
+	return true;
+}{
+	struct media_playlist_source *mps = data;
+	
+	/* 1. ดึง Source ของวิดีโอหลักที่กำลังฉายอยู่ปัจจุบัน */
+	obs_source_t *active_source = mps->media_sources[mps->active_idx];
+	if (!active_source) return false;
+
+	struct obs_source_audio_mix child_audio;
+	uint64_t source_ts;
+
+	/* 2. ดึงสัญญาณเวลาจาก Source ปัจจุบัน */
+	source_ts = obs_source_get_audio_timestamp(active_source);
+	if (!source_ts) return false;
+
+	/* 3. ดึงสัญญาณมิกซ์เสียงจาก Source ปัจจุบัน */
+	obs_source_get_audio_mix(active_source, &child_audio);
+
+	for (size_t mix = 0; mix < MAX_AUDIO_MIXES; mix++) {
+		if ((mixers & (1 << mix)) == 0) continue;
+
+		for (size_t ch = 0; ch < channels; ch++) {
+			float *out = audio_output->output[mix].data[ch];
+			float *in = child_audio.output[mix].data[ch];
+			memcpy(out, in, AUDIO_OUTPUT_FRAMES * MAX_AUDIO_CHANNELS * sizeof(float));
+		}
+	}
+
+	*ts_out = source_ts;
+	UNUSED_PARAMETER(sample_rate);
+	return true;
+}{
+	struct media_playlist_source *mps = data;
+	
+	/* 1. ดึง Source ของวิดีโอหลักที่กำลังฉายอยู่ปัจจุบัน */
+	obs_source_t *active_source = mps->media_sources[mps->active_idx];
+	if (!active_source) return false;
+
+	struct obs_source_audio_mix child_audio;
+	uint64_t source_ts;
+
+	/* 2. ดึงสัญญาณเวลาจาก Source ปัจจุบัน */
+	source_ts = obs_source_get_audio_timestamp(active_source);
+	if (!source_ts) return false;
+
+	/* 3. ดึงสัญญาณมิกซ์เสียงจาก Source ปัจจุบัน */
+	obs_source_get_audio_mix(active_source, &child_audio);
+
+	for (size_t mix = 0; mix < MAX_AUDIO_MIXES; mix++) {
+		if ((mixers & (1 << mix)) == 0) continue;
+
+		for (size_t ch = 0; ch < channels; ch++) {
+			float *out = audio_output->output[mix].data[ch];
+			float *in = child_audio.output[mix].data[ch];
+			memcpy(out, in, AUDIO_OUTPUT_FRAMES * MAX_AUDIO_CHANNELS * sizeof(float));
+		}
+	}
+
+	*ts_out = source_ts;
+	UNUSED_PARAMETER(sample_rate);
+	return true;
+}{
+	struct media_playlist_source *mps = data;
+	
+	/* 1. ดึง Source ของวิดีโอหลักที่กำลังฉายอยู่ปัจจุบัน */
+	obs_source_t *active_source = mps->media_sources[mps->active_idx];
+	if (!active_source) return false;
+
+	struct obs_source_audio_mix child_audio;
+	uint64_t source_ts;
+
+	/* 2. ดึงสัญญาณเวลาจาก Source ปัจจุบัน */
+	source_ts = obs_source_get_audio_timestamp(active_source);
+	if (!source_ts) return false;
+
+	/* 3. ดึงสัญญาณมิกซ์เสียงจาก Source ปัจจุบัน */
+	obs_source_get_audio_mix(active_source, &child_audio);
+
+	for (size_t mix = 0; mix < MAX_AUDIO_MIXES; mix++) {
+		if ((mixers & (1 << mix)) == 0) continue;
+
+		for (size_t ch = 0; ch < channels; ch++) {
+			float *out = audio_output->output[mix].data[ch];
+			float *in = child_audio.output[mix].data[ch];
+			memcpy(out, in, AUDIO_OUTPUT_FRAMES * MAX_AUDIO_CHANNELS * sizeof(float));
+		}
+	}
+
+	*ts_out = source_ts;
+	UNUSED_PARAMETER(sample_rate);
+	return true;
+}{
+	struct media_playlist_source *mps = data;
+	
+	/* 1. ดึง Source ของวิดีโอหลักที่กำลังฉายอยู่ปัจจุบัน */
+	obs_source_t *active_source = mps->media_sources[mps->active_idx];
+	if (!active_source) return false;
+
+	struct obs_source_audio_mix child_audio;
+	uint64_t source_ts;
+
+	/* 2. ดึงสัญญาณเวลาจาก Source ปัจจุบัน */
+	source_ts = obs_source_get_audio_timestamp(active_source);
+	if (!source_ts) return false;
+
+	/* 3. ดึงสัญญาณมิกซ์เสียงจาก Source ปัจจุบัน */
+	obs_source_get_audio_mix(active_source, &child_audio);
+
+	for (size_t mix = 0; mix < MAX_AUDIO_MIXES; mix++) {
+		if ((mixers & (1 << mix)) == 0) continue;
+
+		for (size_t ch = 0; ch < channels; ch++) {
+			float *out = audio_output->output[mix].data[ch];
+			float *in = child_audio.output[mix].data[ch];
+			memcpy(out, in, AUDIO_OUTPUT_FRAMES * MAX_AUDIO_CHANNELS * sizeof(float));
+		}
+	}
+
+	*ts_out = source_ts;
+	UNUSED_PARAMETER(sample_rate);
+	return true;
+}{
+	struct media_playlist_source *mps = data;
+	
+	/* 1. ดึง Source ของวิดีโอหลักที่กำลังฉายอยู่ปัจจุบัน */
+	obs_source_t *active_source = mps->media_sources[mps->active_idx];
+	if (!active_source) return false;
+
+	struct obs_source_audio_mix child_audio;
+	uint64_t source_ts;
+
+	/* 2. ดึงสัญญาณเวลาจาก Source ปัจจุบัน */
+	source_ts = obs_source_get_audio_timestamp(active_source);
+	if (!source_ts) return false;
+
+	/* 3. ดึงสัญญาณมิกซ์เสียงจาก Source ปัจจุบัน */
+	obs_source_get_audio_mix(active_source, &child_audio);
+
+	for (size_t mix = 0; mix < MAX_AUDIO_MIXES; mix++) {
+		if ((mixers & (1 << mix)) == 0) continue;
+
+		for (size_t ch = 0; ch < channels; ch++) {
+			float *out = audio_output->output[mix].data[ch];
+			float *in = child_audio.output[mix].data[ch];
+			memcpy(out, in, AUDIO_OUTPUT_FRAMES * MAX_AUDIO_CHANNELS * sizeof(float));
+		}
+	}
+
+	*ts_out = source_ts;
+	UNUSED_PARAMETER(sample_rate);
+	return true;
+}{
+	struct media_playlist_source *mps = data;
+	
+	/* 1. ดึง Source ของวิดีโอหลักที่กำลังฉายอยู่ปัจจุบัน */
+	obs_source_t *active_source = mps->media_sources[mps->active_idx];
+	if (!active_source) return false;
+
+	struct obs_source_audio_mix child_audio;
+	uint64_t source_ts;
+
+	/* 2. ดึงสัญญาณเวลาจาก Source ปัจจุบัน */
+	source_ts = obs_source_get_audio_timestamp(active_source);
+	if (!source_ts) return false;
+
+	/* 3. ดึงสัญญาณมิกซ์เสียงจาก Source ปัจจุบัน */
+	obs_source_get_audio_mix(active_source, &child_audio);
+
+	for (size_t mix = 0; mix < MAX_AUDIO_MIXES; mix++) {
+		if ((mixers & (1 << mix)) == 0) continue;
+
+		for (size_t ch = 0; ch < channels; ch++) {
+			float *out = audio_output->output[mix].data[ch];
+			float *in = child_audio.output[mix].data[ch];
+			memcpy(out, in, AUDIO_OUTPUT_FRAMES * MAX_AUDIO_CHANNELS * sizeof(float));
+		}
+	}
+
+	*ts_out = source_ts;
+	UNUSED_PARAMETER(sample_rate);
+	return true;
+}{
+	struct media_playlist_source *mps = data;
+	
+	/* 1. ดึง Source ของวิดีโอหลักที่กำลังฉายอยู่ปัจจุบัน */
+	obs_source_t *active_source = mps->media_sources[mps->active_idx];
+	if (!active_source) return false;
+
+	struct obs_source_audio_mix child_audio;
+	uint64_t source_ts;
+
+	/* 2. ดึงสัญญาณเวลาจาก Source ปัจจุบัน */
+	source_ts = obs_source_get_audio_timestamp(active_source);
+	if (!source_ts) return false;
+
+	/* 3. ดึงสัญญาณมิกซ์เสียงจาก Source ปัจจุบัน */
+	obs_source_get_audio_mix(active_source, &child_audio);
+
+	for (size_t mix = 0; mix < MAX_AUDIO_MIXES; mix++) {
+		if ((mixers & (1 << mix)) == 0) continue;
+
+		for (size_t ch = 0; ch < channels; ch++) {
+			float *out = audio_output->output[mix].data[ch];
+			float *in = child_audio.output[mix].data[ch];
+			memcpy(out, in, AUDIO_OUTPUT_FRAMES * MAX_AUDIO_CHANNELS * sizeof(float));
+		}
+	}
+
+	*ts_out = source_ts;
+	UNUSED_PARAMETER(sample_rate);
+	return true;
+}{
+	struct media_playlist_source *mps = data;
+	
+	/* 1. ดึง Source ของวิดีโอหลักที่กำลังฉายอยู่ปัจจุบัน */
+	obs_source_t *active_source = mps->media_sources[mps->active_idx];
+	if (!active_source) return false;
+
+	struct obs_source_audio_mix child_audio;
+	uint64_t source_ts;
+
+	/* 2. ดึงสัญญาณเวลาจาก Source ปัจจุบัน */
+	source_ts = obs_source_get_audio_timestamp(active_source);
+	if (!source_ts) return false;
+
+	/* 3. ดึงสัญญาณมิกซ์เสียงจาก Source ปัจจุบัน */
+	obs_source_get_audio_mix(active_source, &child_audio);
+
+	for (size_t mix = 0; mix < MAX_AUDIO_MIXES; mix++) {
+		if ((mixers & (1 << mix)) == 0) continue;
+
+		for (size_t ch = 0; ch < channels; ch++) {
+			float *out = audio_output->output[mix].data[ch];
+			float *in = child_audio.output[mix].data[ch];
+			memcpy(out, in, AUDIO_OUTPUT_FRAMES * MAX_AUDIO_CHANNELS * sizeof(float));
+		}
+	}
+
+	*ts_out = source_ts;
+	UNUSED_PARAMETER(sample_rate);
+	return true;
+}{
+	struct media_playlist_source *mps = data;
+	
+	/* 1. ดึง Source ของวิดีโอหลักที่กำลังฉายอยู่ปัจจุบัน */
+	obs_source_t *active_source = mps->media_sources[mps->active_idx];
+	if (!active_source) return false;
+
+	struct obs_source_audio_mix child_audio;
+	uint64_t source_ts;
+
+	/* 2. ดึงสัญญาณเวลาจาก Source ปัจจุบัน */
+	source_ts = obs_source_get_audio_timestamp(active_source);
+	if (!source_ts) return false;
+
+	/* 3. ดึงสัญญาณมิกซ์เสียงจาก Source ปัจจุบัน */
+	obs_source_get_audio_mix(active_source, &child_audio);
+
+	for (size_t mix = 0; mix < MAX_AUDIO_MIXES; mix++) {
+		if ((mixers & (1 << mix)) == 0) continue;
+
+		for (size_t ch = 0; ch < channels; ch++) {
+			float *out = audio_output->output[mix].data[ch];
+			float *in = child_audio.output[mix].data[ch];
+			memcpy(out, in, AUDIO_OUTPUT_FRAMES * MAX_AUDIO_CHANNELS * sizeof(float));
+		}
+	}
+
+	*ts_out = source_ts;
+	UNUSED_PARAMETER(sample_rate);
+	return true;
+}{
+	struct media_playlist_source *mps = data;
+	
+	/* 1. ดึง Source ของวิดีโอหลักที่กำลังฉายอยู่ปัจจุบัน */
+	obs_source_t *active_source = mps->media_sources[mps->active_idx];
+	if (!active_source) return false;
+
+	struct obs_source_audio_mix child_audio;
+	uint64_t source_ts;
+
+	/* 2. ดึงสัญญาณเวลาจาก Source ปัจจุบัน */
+	source_ts = obs_source_get_audio_timestamp(active_source);
+	if (!source_ts) return false;
+
+	/* 3. ดึงสัญญาณมิกซ์เสียงจาก Source ปัจจุบัน */
+	obs_source_get_audio_mix(active_source, &child_audio);
+
+	for (size_t mix = 0; mix < MAX_AUDIO_MIXES; mix++) {
+		if ((mixers & (1 << mix)) == 0) continue;
+
+		for (size_t ch = 0; ch < channels; ch++) {
+			float *out = audio_output->output[mix].data[ch];
+			float *in = child_audio.output[mix].data[ch];
+			memcpy(out, in, AUDIO_OUTPUT_FRAMES * MAX_AUDIO_CHANNELS * sizeof(float));
+		}
+	}
+
+	*ts_out = source_ts;
+	UNUSED_PARAMETER(sample_rate);
+	return true;
+}{
+	struct media_playlist_source *mps = data;
+	
+	/* 1. ดึง Source ของวิดีโอหลักที่กำลังฉายอยู่ปัจจุบัน */
+	obs_source_t *active_source = mps->media_sources[mps->active_idx];
+	if (!active_source) return false;
+
+	struct obs_source_audio_mix child_audio;
+	uint64_t source_ts;
+
+	/* 2. ดึงสัญญาณเวลาจาก Source ปัจจุบัน */
+	source_ts = obs_source_get_audio_timestamp(active_source);
+	if (!source_ts) return false;
+
+	/* 3. ดึงสัญญาณมิกซ์เสียงจาก Source ปัจจุบัน */
+	obs_source_get_audio_mix(active_source, &child_audio);
+
+	for (size_t mix = 0; mix < MAX_AUDIO_MIXES; mix++) {
+		if ((mixers & (1 << mix)) == 0) continue;
+
+		for (size_t ch = 0; ch < channels; ch++) {
+			float *out = audio_output->output[mix].data[ch];
+			float *in = child_audio.output[mix].data[ch];
+			memcpy(out, in, AUDIO_OUTPUT_FRAMES * MAX_AUDIO_CHANNELS * sizeof(float));
+		}
+	}
+
+	*ts_out = source_ts;
+	UNUSED_PARAMETER(sample_rate);
+	return true;
+}{
+	struct media_playlist_source *mps = data;
+	
+	/* 1. ดึง Source ของวิดีโอหลักที่กำลังฉายอยู่ปัจจุบัน */
+	obs_source_t *active_source = mps->media_sources[mps->active_idx];
+	if (!active_source) return false;
+
+	struct obs_source_audio_mix child_audio;
+	uint64_t source_ts;
+
+	/* 2. ดึงสัญญาณเวลาจาก Source ปัจจุบัน */
+	source_ts = obs_source_get_audio_timestamp(active_source);
+	if (!source_ts) return false;
+
+	/* 3. ดึงสัญญาณมิกซ์เสียงจาก Source ปัจจุบัน */
+	obs_source_get_audio_mix(active_source, &child_audio);
+
+	for (size_t mix = 0; mix < MAX_AUDIO_MIXES; mix++) {
+		if ((mixers & (1 << mix)) == 0) continue;
+
+		for (size_t ch = 0; ch < channels; ch++) {
+			float *out = audio_output->output[mix].data[ch];
+			float *in = child_audio.output[mix].data[ch];
+			memcpy(out, in, AUDIO_OUTPUT_FRAMES * MAX_AUDIO_CHANNELS * sizeof(float));
+		}
+	}
+
+	*ts_out = source_ts;
+	UNUSED_PARAMETER(sample_rate);
+	return true;
+}{
+	struct media_playlist_source *mps = data;
+	
+	/* 1. ดึง Source ของวิดีโอหลักที่กำลังฉายอยู่ปัจจุบัน */
+	obs_source_t *active_source = mps->media_sources[mps->active_idx];
+	if (!active_source) return false;
+
+	struct obs_source_audio_mix child_audio;
+	uint64_t source_ts;
+
+	/* 2. ดึงสัญญาณเวลาจาก Source ปัจจุบัน */
+	source_ts = obs_source_get_audio_timestamp(active_source);
+	if (!source_ts) return false;
+
+	/* 3. ดึงสัญญาณมิกซ์เสียงจาก Source ปัจจุบัน */
+	obs_source_get_audio_mix(active_source, &child_audio);
+
+	for (size_t mix = 0; mix < MAX_AUDIO_MIXES; mix++) {
+		if ((mixers & (1 << mix)) == 0) continue;
+
+		for (size_t ch = 0; ch < channels; ch++) {
+			float *out = audio_output->output[mix].data[ch];
+			float *in = child_audio.output[mix].data[ch];
+			memcpy(out, in, AUDIO_OUTPUT_FRAMES * MAX_AUDIO_CHANNELS * sizeof(float));
+		}
+	}
+
+	*ts_out = source_ts;
+	UNUSED_PARAMETER(sample_rate);
+	return true;
+}{
+	struct media_playlist_source *mps = data;
+	
+	/* 1. ดึง Source ของวิดีโอหลักที่กำลังฉายอยู่ปัจจุบัน */
+	obs_source_t *active_source = mps->media_sources[mps->active_idx];
+	if (!active_source) return false;
+
+	struct obs_source_audio_mix child_audio;
+	uint64_t source_ts;
+
+	/* 2. ดึงสัญญาณเวลาจาก Source ปัจจุบัน */
+	source_ts = obs_source_get_audio_timestamp(active_source);
+	if (!source_ts) return false;
+
+	/* 3. ดึงสัญญาณมิกซ์เสียงจาก Source ปัจจุบัน */
+	obs_source_get_audio_mix(active_source, &child_audio);
+
+	for (size_t mix = 0; mix < MAX_AUDIO_MIXES; mix++) {
+		if ((mixers & (1 << mix)) == 0) continue;
+
+		for (size_t ch = 0; ch < channels; ch++) {
+			float *out = audio_output->output[mix].data[ch];
+			float *in = child_audio.output[mix].data[ch];
+			memcpy(out, in, AUDIO_OUTPUT_FRAMES * MAX_AUDIO_CHANNELS * sizeof(float));
+		}
+	}
+
+	*ts_out = source_ts;
+	UNUSED_PARAMETER(sample_rate);
+	return true;
+}{
+	struct media_playlist_source *mps = data;
+	
+	/* 1. ดึง Source ของวิดีโอหลักที่กำลังฉายอยู่ปัจจุบัน */
+	obs_source_t *active_source = mps->media_sources[mps->active_idx];
+	if (!active_source) return false;
+
+	struct obs_source_audio_mix child_audio;
+	uint64_t source_ts;
+
+	/* 2. ดึงสัญญาณเวลาจาก Source ปัจจุบัน */
+	source_ts = obs_source_get_audio_timestamp(active_source);
+	if (!source_ts) return false;
+
+	/* 3. ดึงสัญญาณมิกซ์เสียงจาก Source ปัจจุบัน */
+	obs_source_get_audio_mix(active_source, &child_audio);
+
+	for (size_t mix = 0; mix < MAX_AUDIO_MIXES; mix++) {
+		if ((mixers & (1 << mix)) == 0) continue;
+
+		for (size_t ch = 0; ch < channels; ch++) {
+			float *out = audio_output->output[mix].data[ch];
+			float *in = child_audio.output[mix].data[ch];
+			memcpy(out, in, AUDIO_OUTPUT_FRAMES * MAX_AUDIO_CHANNELS * sizeof(float));
+		}
+	}
+
+	*ts_out = source_ts;
+	UNUSED_PARAMETER(sample_rate);
+	return true;
+}{
+	struct media_playlist_source *mps = data;
+	
+	/* 1. ดึง Source ของวิดีโอหลักที่กำลังฉายอยู่ปัจจุบัน */
+	obs_source_t *active_source = mps->media_sources[mps->active_idx];
+	if (!active_source) return false;
+
+	struct obs_source_audio_mix child_audio;
+	uint64_t source_ts;
+
+	/* 2. ดึงสัญญาณเวลาจาก Source ปัจจุบัน */
+	source_ts = obs_source_get_audio_timestamp(active_source);
+	if (!source_ts) return false;
+
+	/* 3. ดึงสัญญาณมิกซ์เสียงจาก Source ปัจจุบัน */
+	obs_source_get_audio_mix(active_source, &child_audio);
+
+	for (size_t mix = 0; mix < MAX_AUDIO_MIXES; mix++) {
+		if ((mixers & (1 << mix)) == 0) continue;
+
+		for (size_t ch = 0; ch < channels; ch++) {
+			float *out = audio_output->output[mix].data[ch];
+			float *in = child_audio.output[mix].data[ch];
+			memcpy(out, in, AUDIO_OUTPUT_FRAMES * MAX_AUDIO_CHANNELS * sizeof(float));
+		}
+	}
+
+	*ts_out = source_ts;
 	UNUSED_PARAMETER(sample_rate);
 	return true;
 }

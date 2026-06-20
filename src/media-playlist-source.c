@@ -344,7 +344,7 @@ static enum obs_media_state mps_get_state(void *data)
 	struct media_playlist_source *mps = data;
 	enum obs_media_state media_state;
 	if (get_total_file_count(mps) > 0) {
-		media_state = obs_source_media_get_state(mps->current_media_source);
+		media_state = obs_source_media_get_state(mps->media_sources[mps->active_idx]);
 	} else {
 		media_state = OBS_MEDIA_STATE_NONE;
 	}
@@ -365,18 +365,29 @@ static void media_source_ended(void *data, calldata_t *cd)
 {
 	UNUSED_PARAMETER(cd);
 	struct media_playlist_source *mps = data;
+	if (!mps) return;
 
-	/* In OBS 29.1.3 and below, stopping a currently playing media source triggers
-	 * both the STOPPED and ENDED signals. In the future, it should actually just
-	 * be STOPPED. TODO: Remove `user_stopped` if PR #9218 gets merged.
-	 *
-	 * EDIT: Tested in OBS 31, now problem is deactivate is sending an ENDED signal
-	 * rather than a STOPPED. So in mps_deactivate, we set user_stopped to true
-	 */
+	/* 1. ดึงข้อมูลว่า Source ตัวไหนเป็นตัวที่กำลังฉายอยู่ปัจจุบัน (Active) */
+	obs_source_t *active_source = mps->media_sources[mps->active_idx];
+
+	/* 2. เช็คตัวแปรสลักสัญญาณเพื่อดูว่า Source ตัวที่ส่งสัญญาณ "เล่นจบ" มา 
+	   ใช่ตัวเดียวกับที่กำลังฉายอยู่จริง ๆ หรือเปล่า */
+	obs_source_t *source_signal = calldata_ptr(cd, "source");
+	if (source_signal != active_source) {
+		return; /* ถ้าไม่ใช่ตัวหลัก ให้ข้ามไป ป้องกันคิวรวน */
+	}
+
 	if (mps->user_stopped) {
 		mps->user_stopped = false;
 		return;
-	} else if (mps->current_media_index < mps->files.num - 1 || mps->loop) {
+	}
+
+	/* 3. เริ่มกระบวนการสลับคิวไปวิดีโอถัดไป */
+	if (mps->current_media_index < mps->files.num - 1 || mps->loop) {
+		/* สลับบทบาท (Swap Index): ตัวที่เคยรันอยู่หลังบ้านจะกลายมาเป็นตัวหลักแทน */
+		mps->active_idx = (mps->active_idx == 0) ? 1 : 0;
+		
+		/* สั่งเลื่อนไปเล่นไฟล์ถัดไปบน Source ตัวใหม่ */
 		obs_source_media_next(mps->source);
 	} else {
 		mps_end_reached(mps);
@@ -761,16 +772,25 @@ static void *mps_create(obs_data_t *settings, obs_source_t *source)
 
 	shuffler_init(&mps->shuffler);
 
-	/* Internal media source */
-	obs_data_t *media_source_data = obs_data_create();
-	obs_data_set_bool(media_source_data, "log_changes", false);
-	mps->current_media_source =
-		obs_source_create_private("ffmpeg_source", "current_media_source", media_source_data);
-	obs_source_add_active_child(mps->source, mps->current_media_source);
-	obs_source_add_audio_capture_callback(mps->current_media_source, mps_audio_callback, mps);
+	/* วางโค้ดใหม่นี้ลงไปแทนที่ส่วนที่ลบเมื่อกี้ */
+    context->active_idx = 0; 
+    obs_data_t *media_source_data = obs_data_create();
+    obs_data_set_bool(media_source_data, "log_changes", false);
 
-	signal_handler_t *sh_media_source = obs_source_get_signal_handler(mps->current_media_source);
-	signal_handler_connect(sh_media_source, "media_ended", media_source_ended, mps);
+    for (int i = 0; i < 2; i++) {
+        // สร้าง Private Source ขึ้นมา 2 ตัวสแตนด์บายคู่กัน
+        context->media_sources[i] = obs_source_create_private(
+            "ffmpeg_source", "playlist_media_source", media_source_data);
+
+        if (context->media_sources[i]) {
+            // ลงทะเบียนให้ทั้งสองตัวส่งเสียงเข้า OBS และผูกสัญญาณแจ้งเตือนตอนวิดีโอเล่นจบ
+            obs_source_add_active_child(context->source, context->media_sources[i]);
+            obs_source_add_audio_capture_callback(context->media_sources[i], mps_audio_callback, context);
+            
+            signal_handler_t *sh = obs_source_get_signal_handler(context->media_sources[i]);
+            signal_handler_connect(sh, "media_ended", mps_media_ended, context);
+        }
+    }
 
 	mps->paused = false;
 

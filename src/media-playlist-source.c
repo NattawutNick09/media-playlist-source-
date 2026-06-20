@@ -842,7 +842,7 @@ static void mps_video_render(void *data, gs_effect_t *effect)
 
 	/* 1. ดึงตัวเล่นหลักที่กำลังฉายอยู่ปัจจุบันขึ้นมาวาดก่อน */
 	obs_source_t *active_source = mps->media_sources[mps->active_idx];
-	
+
 	/* 2. เช็คว่าอยู่ในช่วงเปลี่ยนผ่านวิดีโอ (Transition) หรือไม่ */
 	if (mps->is_transitioning) {
 		int next_idx = (mps->active_idx == 0) ? 1 : 0;
@@ -850,7 +850,7 @@ static void mps_video_render(void *data, gs_effect_t *effect)
 
 		// เพิ่มค่า Blend ไต่ระดับความจางจาก 0.0 -> 1.0 (ปรับความเร็วตรง 0.02f ยิ่งน้อยยิ่ง Fade ช้า)
 		if (mps->transition_blend < 1.0f) {
-			mps->transition_blend += 0.02f; 
+			mps->transition_blend += 0.02f;
 		} else {
 			// เมื่อ Fade เสร็จสมบูรณ์ ให้ปิด Flag การทำ Transition
 			mps->is_transitioning = false;
@@ -858,30 +858,36 @@ static void mps_video_render(void *data, gs_effect_t *effect)
 
 		/* เปิดโหมดผสมสี/แสง (Blending) ของระบบกราฟิก OBS */
 		gs_blend_state_push();
-		
+
 		// วาดวิดีโอตัวเก่าแบบค่อย ๆ จางลง
-		obs_source_video_render(active_source); 
-		
+		if (active_source) {
+			obs_source_video_render(active_source);
+		}
+
 		// ตั้งค่าเบลนสีเพื่อเอาวิดีโอใหม่มาวาดซ้อนแบบโปร่งแสงตามค่า transition_blend
 		gs_blend_function(GS_BLEND_SRC_ALPHA, GS_BLEND_ONE);
-		obs_source_video_render(next_source);
+		if (next_source) {
+			obs_source_video_render(next_source);
+		}
 
 		gs_blend_state_pop();
 	} else {
 		/* สถานะปกติ (ไม่ได้เปลี่ยนเพลง) ให้วาดวิดีโอหลักเต็มจอตามปกติ */
 		if (active_source) {
 			obs_source_video_render(active_source);
+		} else {
+			obs_source_video_render(NULL);
 		}
 	}
 
 	UNUSED_PARAMETER(effect);
 }
 
-static bool mps_audio_render(void *data, uint64_t *ts_out, struct obs_source_audio_mix *audio_output, uint32_t mixers,
-			     size_t channels, size_t sample_rate)
+static bool mps_audio_render(void *data, uint64_t *ts_out, struct obs_source_audio_mix *audio_output, uint32_t mixers, size_t channels, size_t sample_rate)
 {
 	struct media_playlist_source *mps = data;
-	
+	if (!mps) return false;
+
 	/* 1. ดึง Source ของวิดีโอหลักที่กำลังฉายอยู่ปัจจุบัน */
 	obs_source_t *active_source = mps->media_sources[mps->active_idx];
 	if (!active_source) return false;

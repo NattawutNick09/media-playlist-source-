@@ -493,21 +493,21 @@ static int64_t mps_get_duration(void *data)
 {
 	struct media_playlist_source *mps = data;
 
-	return obs_source_media_get_duration(mps->current_media_source);
+	return obs_source_media_get_duration(mps->media_sources[mps->active_idx]);
 }
 
 static int64_t mps_get_time(void *data)
 {
 	struct media_playlist_source *mps = data;
 
-	return obs_source_media_get_time(mps->current_media_source);
+	return obs_source_media_get_time(mps->media_sources[mps->active_idx]);
 }
 
 static void mps_set_time(void *data, int64_t ms)
 {
 	struct media_playlist_source *mps = data;
 
-	obs_source_media_set_time(mps->current_media_source, ms);
+	obs_source_media_set_time(mps->media_sources[mps->active_idx], ms);
 }
 
 static void play_pause_hotkey(void *data, obs_hotkey_id id, obs_hotkey_t *hotkey, bool pressed)
@@ -551,7 +551,7 @@ static void next_hotkey(void *data, obs_hotkey_id id, obs_hotkey_t *hotkey, bool
 	struct media_playlist_source *mps = data;
 
 	if (pressed && obs_source_showing(mps->source))
-		obs_source_media_next(mps->source);
+		mps_playlist_next(mps);
 }
 
 static void previous_hotkey(void *data, obs_hotkey_id id, obs_hotkey_t *hotkey, bool pressed)
@@ -562,7 +562,7 @@ static void previous_hotkey(void *data, obs_hotkey_id id, obs_hotkey_t *hotkey, 
 	struct media_playlist_source *mps = data;
 
 	if (pressed && obs_source_showing(mps->source))
-		obs_source_media_previous(mps->source);
+		mps_playlist_prev(mps);
 }
 
 static void mps_play_pause(void *data, bool pause)
@@ -744,7 +744,6 @@ static void mps_deactivate(void *data)
 	} else if (mps->visibility_behavior == VISIBILITY_BEHAVIOR_STOP_PLAY_NEXT) {
 		mps->user_stopped = true;
 		obs_source_media_stop(mps->source);
-		obs_source_media_next(mps->source);
 	}
 }
 
@@ -752,7 +751,9 @@ static void mps_destroy(void *data)
 {
 	struct media_playlist_source *mps = data;
 
-	obs_source_release(mps->current_media_source);
+	for (int i = 0; i < 2; i++) {
+    obs_source_release(mps->media_sources[i]);
+}
 	shuffler_destroy(&mps->shuffler);
 	free_files(&mps->files.da);
 	for (size_t i = 0; i < MAX_AUDIO_CHANNELS; i++) {

@@ -569,7 +569,7 @@ static void mps_play_pause(void *data, bool pause)
 {
 	struct media_playlist_source *mps = data;
 
-	obs_source_media_play_pause(mps->current_media_source, pause);
+	obs_source_media_play_pause(mps->media_sources[mps->active_idx], pause);
 	mps->paused = pause;
 
 	if (pause)
@@ -592,7 +592,7 @@ static void mps_restart(void *data)
 			// We do it here, because updating a media source will restart it
 			update_media_source(mps, true);
 		}
-		obs_source_media_restart(mps->current_media_source);
+		obs_source_media_restart(mps->media_sources[mps->active_idx]);
 		set_media_state(mps, OBS_MEDIA_STATE_PLAYING);
 	}
 }
@@ -602,7 +602,7 @@ static void mps_stop(void *data)
 	struct media_playlist_source *mps = data;
 
 	mps->user_stopped = true;
-	obs_source_media_stop(mps->current_media_source);
+	obs_source_media_stop(mps->media_sources[mps->active_idx]);
 	set_media_state(mps, OBS_MEDIA_STATE_STOPPED);
 }
 
@@ -1003,13 +1003,13 @@ static void mps_enum_sources(void *data, obs_source_enum_proc_t cb, void *param)
 static uint32_t mps_width(void *data)
 {
 	struct media_playlist_source *mps = data;
-	return obs_source_get_width(mps->current_media_source);
+	return obs_source_get_width(mps->media_sources[mps->active_idx]);
 }
 
 static uint32_t mps_height(void *data)
 {
 	struct media_playlist_source *mps = data;
-	return obs_source_get_height(mps->current_media_source);
+	return obs_source_get_height(mps->media_sources[mps->active_idx]);
 }
 
 static void mps_defaults(obs_data_t *settings)
@@ -1271,7 +1271,9 @@ static void mps_update(void *data, obs_data_t *settings)
 	obs_data_set_bool(media_source_settings, S_FFMPEG_HW_DECODE, mps->use_hw_decoding);
 	obs_data_set_bool(media_source_settings, S_FFMPEG_CLOSE_WHEN_INACTIVE, mps->close_when_inactive);
 	obs_data_set_int(media_source_settings, S_SPEED, mps->speed);
-	obs_source_update(mps->current_media_source, media_source_settings);
+	for (int i = 0; i < 2; i++) {
+    obs_source_update(mps->media_sources[i], media_source_settings);
+}
 	obs_data_release(media_source_settings);
 	mps->state = obs_source_media_get_state(mps->source);
 	if (visibility_behavior_changed && !obs_source_active(mps->source) &&

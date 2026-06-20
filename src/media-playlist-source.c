@@ -838,10 +838,40 @@ error:
 static void mps_video_render(void *data, gs_effect_t *effect)
 {
 	struct media_playlist_source *mps = data;
-	if (mps->actual_media) {
-		obs_source_video_render(mps->current_media_source);
+	if (!mps) return;
+
+	/* 1. ดึงตัวเล่นหลักที่กำลังฉายอยู่ปัจจุบันขึ้นมาวาดก่อน */
+	obs_source_t *active_source = mps->media_sources[mps->active_idx];
+	
+	/* 2. เช็คว่าอยู่ในช่วงเปลี่ยนผ่านวิดีโอ (Transition) หรือไม่ */
+	if (mps->is_transitioning) {
+		int next_idx = (mps->active_idx == 0) ? 1 : 0;
+		obs_source_t *next_source = mps->media_sources[next_idx];
+
+		// เพิ่มค่า Blend ไต่ระดับความจางจาก 0.0 -> 1.0 (ปรับความเร็วตรง 0.02f ยิ่งน้อยยิ่ง Fade ช้า)
+		if (mps->transition_blend < 1.0f) {
+			mps->transition_blend += 0.02f; 
+		} else {
+			// เมื่อ Fade เสร็จสมบูรณ์ ให้ปิด Flag การทำ Transition
+			mps->is_transitioning = false;
+		}
+
+		/* เปิดโหมดผสมสี/แสง (Blending) ของระบบกราฟิก OBS */
+		gs_blend_state_push();
+		
+		// วาดวิดีโอตัวเก่าแบบค่อย ๆ จางลง
+		obs_source_video_render(active_source); 
+		
+		// ตั้งค่าเบลนสีเพื่อเอาวิดีโอใหม่มาวาดซ้อนแบบโปร่งแสงตามค่า transition_blend
+		gs_blend_function(GS_BLEND_SRC_ALPHA, GS_BLEND_ONE);
+		obs_source_video_render(next_source);
+
+		gs_blend_state_pop();
 	} else {
-		obs_source_video_render(NULL);
+		/* สถานะปกติ (ไม่ได้เปลี่ยนเพลง) ให้วาดวิดีโอหลักเต็มจอตามปกติ */
+		if (active_source) {
+			obs_source_video_render(active_source);
+		}
 	}
 
 	UNUSED_PARAMETER(effect);

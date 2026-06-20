@@ -48,6 +48,8 @@ struct media_playlist_source {
 	obs_source_t *source;
 	obs_source_t *current_media_source;
     obs_source_t *next_media_source;
+    obs_source_t *media_sources[2];
+    int active_idx;
     float transition_blend;
     bool is_transitioning;
 

@@ -778,24 +778,24 @@ static void *mps_create(obs_data_t *settings, obs_source_t *source)
 	shuffler_init(&mps->shuffler);
 
 	/* วางโค้ดใหม่นี้ลงไปแทนที่ส่วนที่ลบเมื่อกี้ */
-    context->active_idx = 0; 
+    mps->active_idx = 0;
     obs_data_t *media_source_data = obs_data_create();
-    obs_data_set_bool(media_source_data, "log_changes", false);
+	obs_data_set_bool(media_source_data, "log_changes", false);
 
-    for (int i = 0; i < 2; i++) {
-        // สร้าง Private Source ขึ้นมา 2 ตัวสแตนด์บายคู่กัน
-        context->media_sources[i] = obs_source_create_private(
-            "ffmpeg_source", "playlist_media_source", media_source_data);
+	for (int i = 0; i < 2; i++) {
+		// สร้าง Private Source ขึ้นมา 2 ตัวสแตนด์บายคู่กัน
+		mps->media_sources[i] = obs_source_create_private(
+			"ffmpeg_source", "playlist_media_source", media_source_data);
 
-        if (context->media_sources[i]) {
-            // ลงทะเบียนให้ทั้งสองตัวส่งเสียงเข้า OBS และผูกสัญญาณแจ้งเตือนตอนวิดีโอเล่นจบ
-            obs_source_add_active_child(context->source, context->media_sources[i]);
-            obs_source_add_audio_capture_callback(context->media_sources[i], mps_audio_callback, context);
-            
-            signal_handler_t *sh = obs_source_get_signal_handler(context->media_sources[i]);
-            signal_handler_connect(sh, "media_ended", mps_media_ended, context);
-        }
-    }
+		if (mps->media_sources[i]) {
+			// ลงทะเบียนให้ทั้งสองตัวส่งเสียงเข้า OBS และผูกสัญญาณแจ้งเตือนตอนวิดีโอเล่นจบ
+			obs_source_add_active_child(mps->source, mps->media_sources[i]);
+			obs_source_add_audio_capture_callback(mps->media_sources[i], mps_audio_callback, mps);
+			
+			signal_handler_t *sh = obs_source_get_signal_handler(mps->media_sources[i]);
+			signal_handler_connect(sh, "media_ended", media_source_ended, mps);
+		}
+	}
 
 	mps->paused = false;
 
